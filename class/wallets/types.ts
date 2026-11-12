@@ -2,54 +2,25 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { CoinSelectOutput, CoinSelectReturnInput, CoinSelectUtxo } from 'coinselect';
 
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { HDAezeedWallet } from './hd-aezeed-wallet';
-import { HDLegacyBreadwalletWallet } from './hd-legacy-breadwallet-wallet';
-import { HDLegacyElectrumSeedP2PKHWallet } from './hd-legacy-electrum-seed-p2pkh-wallet';
-import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
-import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
-import { HDSegwitElectrumSeedP2WPKHWallet } from './hd-segwit-electrum-seed-p2wpkh-wallet';
-import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
-import { LegacyWallet } from './legacy-wallet';
-import { LightningCustodianWallet } from './lightning-custodian-wallet';
-import { MultisigHDWallet } from './multisig-hd-wallet';
-import { SegwitBech32Wallet } from './segwit-bech32-wallet';
-import { SegwitP2SHWallet } from './segwit-p2sh-wallet';
-import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './slip39-wallets';
-import { WatchOnlyWallet } from './watch-only-wallet';
-import { TaprootWallet } from './taproot-wallet.ts';
-import { HDTaprootWallet } from './hd-taproot-wallet.ts';
-import { LightningArkWallet } from './lightning-ark-wallet.ts';
 
-/**
- * An unspent output as the wallet stores it (`_utxo`, `getUtxo()`, CoinControl).
- * BlueElectrum.multiGetUtxoByAddress builds it from the raw electrum listunspent row; the wallet then adds
- * txhex (legacy inputs), confirmations and wif.
- */
 export type Utxo = {
   height: number;
   address: string;
   txid: string;
   vout: number;
   value: number;
-
   txhex?: string;
   confirmations?: number;
   wif?: string | false;
 };
 
-/**
- * What createTransaction / coinselect need from a utxo. A stored `Utxo` satisfies it.
- */
 export interface CreateTransactionUtxo extends CoinSelectUtxo {}
 
-/**
- * if address is missing and `script.hex` is set - this is a custom script (like OP_RETURN)
- */
 export type CreateTransactionTarget = {
   address?: string;
   value?: number;
   script?: {
-    length?: number; // either length or hex should be present
+    length?: number;
     hex?: string;
   };
 };
@@ -102,15 +73,11 @@ export interface DecodedInvoice {
 export type LightningTransaction = {
   memo?: string;
   type?: 'user_invoice' | 'payment_request' | 'bitcoind_tx' | 'paid_invoice';
-  payment_hash?: string | { data: number[] }; // lndhub serializes a Buffer
+  payment_hash?: string | { data: number[] };
   category?: 'receive';
-  timestamp: number; // seconds, not milliseconds
+  timestamp: number;
   expire_time?: number;
   ispaid?: boolean;
-  // Terminal non-success state (failed/refunded/expired swap). Distinct from
-  // `ispaid:false`, which on its own only means "not settled yet" and is also
-  // true for in-flight rows. Consumers that gate on pending vs. dead state
-  // (e.g. the wallet-card pending pill) must treat `failed` rows as terminal.
   failed?: boolean;
   walletID?: string;
   value?: number;
@@ -131,50 +98,20 @@ export type Transaction = {
   locktime: number;
   inputs: TransactionInput[];
   outputs: TransactionOutput[];
-  // Confirmation-only fields: absent on mempool (unconfirmed) responses.
   blockhash?: string;
   confirmations?: number;
   time?: number;
   blocktime?: number;
-  timestamp: number; // seconds, not milliseconds
+  timestamp: number;
   value?: number;
-  /** only when the row came straight from an electrum server that reports it */
   fee?: number;
-
-  /**
-   * if known, who is on the other end of the transaction (BIP47 payment code)
-   */
   counterparty?: string;
 };
 
-/**
- * in some cases we add additional data to each tx object so the code that works with that transaction can find the
- * wallet that owns it etc
- */
 export type ExtendedTransaction = Transaction & {
   walletID: string;
   walletPreferredBalanceUnit: BitcoinUnit;
 };
 
-export type TWallet =
-  | HDAezeedWallet
-  | HDLegacyBreadwalletWallet
-  | HDLegacyElectrumSeedP2PKHWallet
-  | HDLegacyP2PKHWallet
-  | HDSegwitBech32Wallet
-  | HDSegwitElectrumSeedP2WPKHWallet
-  | HDSegwitP2SHWallet
-  | HDTaprootWallet
-  | LegacyWallet
-  | LightningArkWallet
-  | LightningCustodianWallet
-  | MultisigHDWallet
-  | SLIP39LegacyP2PKHWallet
-  | SLIP39SegwitBech32Wallet
-  | SLIP39SegwitP2SHWallet
-  | SegwitBech32Wallet
-  | SegwitP2SHWallet
-  | TaprootWallet
-  | WatchOnlyWallet;
-
-export type THDWalletForWatchOnly = HDSegwitBech32Wallet | HDSegwitP2SHWallet | HDLegacyP2PKHWallet | HDTaprootWallet;
+export type TWallet = any;
+export type THDWalletForWatchOnly = any;

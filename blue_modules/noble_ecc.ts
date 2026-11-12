@@ -7,7 +7,7 @@
  */
 import * as necc from '@noble/secp256k1';
 import { TinySecp256k1Interface as TinySecp256k1InterfaceBIP32 } from 'bip32';
-import { XOnlyPointAddTweakResult } from 'bitcoinjs-lib/src/types';
+type XOnlyPointAddTweakResult = { parity: 0 | 1; xOnlyPubkey: Uint8Array };
 import { hmac } from '@noble/hashes/hmac';
 import { sha256 } from '@noble/hashes/sha2';
 import { TinySecp256k1Interface } from 'ecpair';

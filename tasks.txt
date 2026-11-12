@@ -1,0 +1,122 @@
+# BlueWallet-web Tasks
+# Porting BlueWallet (React Native) to run on web via lif-kernel at port 4202
+
+## Current Status
+App loads main.tsx, registers service worker, shows "Loading..." then attempts
+dynamic import of App.tsx. App.tsx's import chain partially works — many deps
+resolve OK but navigation/MasterView fails due to @react-navigation/elements
+importing .png files which lif-kernel can't serve as JS modules.
+
+## Open Tasks
+
+### 1. Patch @react-navigation/elements PNG imports [BLOCKED on permission]
+File: node_modules/@react-navigation/elements/lib/module/index.js
+Problem: imports back-icon.png, back-icon-mask.png, clear-icon.png,
+  close-icon.png, search-icon.png as ES module imports. lif-kernel adds ?mjs
+  and serves binary PNG as JS → "Invalid or unexpected token".
+Fix: replace the 5 `import ... from './assets/X.png'` lines with
+  `const backIcon = ''; const backIconMask = ''; ...` etc.
+Backup already at index.js.bak. Patched version at:
+  /tmp/claude-1001/-home-derry-lif-coin/.../scratchpad/elements-index-patched.js
+Need user to run the cp command (auto-mode blocks node_modules writes).
+
+### 2. Search for other .png/.jpg image imports in npm deps
+After fixing elements, there may be other npm packages that import image files.
+BlueWallet's own themes.tsx uses require('../img/close.png') — need to verify
+if lif-kernel handles require() for images differently than import.
+Also check: components that import SVG files, font files, etc.
+
+### 3. Test full App.tsx import chain after elements fix
+Once elements is patched, restart Chrome with fresh profile and test:
+  import('/.lif/local/bluewallet-web//App.tsx?mjs')
+Many deps already work. Remaining potential issues in screen/* components
+that were not individually tested yet.
+
+### 4. Fix any remaining missing stub exports
+Pattern: lif-kernel file: dep subpath imports (like @arkade-os/sdk/repos/realm)
+always do `export *` from the main index.js, ignoring physical subpath files.
+All needed exports must be in the root index.js of each stub.
+Already fixed for: arkade-os-sdk, arkade-os-boltz-swap.
+May need more for other stubs if new subpath imports surface.
+
+### 5. Handle __DEV__ global
+MasterView.tsx uses `{__DEV__ && <DevMenu />}`. DevMenu is now a no-op stub,
+but __DEV__ itself may be undefined in lif-kernel context → ReferenceError.
+Need to define globalThis.__DEV__ = false (or true) somewhere in main.tsx or
+web entry point.
+
+## Completed
+- [x] Convert bc-bech32/dist to ESM (was CJS with require/exports)
+- [x] Change bc-ur/dist imports to use relative paths for bc-bech32
+- [x] Remove module.exports from 5 stubs (rn-background-fetch, rn-default-pref,
+      rn-share, rn-fs, rn-haptic-feedback)
+- [x] Create arkade-os-sdk subpath files (repositories/realm.js, adapters/expo.js)
+- [x] Add missing exports to arkade-os-sdk stub (ARK_REALM_SCHEMA_VERSION,
+      ArkRealmSchemas, runArkRealmMigrations, RestArkProvider, ContractManager,
+      VtxoManager, DelegateVtxo, networks)
+- [x] Add missing exports to arkade-os-boltz-swap stub (RealmSwapRepository,
+      BoltzRealmSchemas, SwapManager, isSubmarineFinalStatus, isReverseFinalStatus,
+      isChainFinalStatus, updateChainSwapStatus, updateReverseSwapStatus,
+      updateSubmarineSwapStatus)
+- [x] Add missing exports to react-native-svg stub (Image, Mask, Pattern,
+      Ellipse, TSpan, ForeignObject, Symbol, Marker)
+- [x] Stub DevMenu.tsx (uses DevSettings not available in react-native-web)
+
+## lif-kernel Bugs / Limitations
+
+### BUG: PNG/image imports crash the module system
+When an npm module has `import icon from './icon.png'`, lif-kernel's Babel
+transform rewrites it to `import icon from './icon.png?mjs'`. The service
+worker then fetches the PNG file and serves its binary content as
+Content-Type: application/javascript. The browser JS parser hits the binary
+data and throws "Invalid or unexpected token".
+Affected: @react-navigation/elements (5 PNG imports), possibly others.
+Expected: lif-kernel should detect non-JS file extensions (.png, .jpg, .gif,
+.svg, .woff, .ttf) and either:
+  a) return a JS module that exports a data: URI of the file, or
+  b) return a JS module that exports the served URL of the file, or
+  c) skip the ?mjs rewrite for known asset extensions.
+Workaround: manually patch the importing file to use `const x = ''` instead.
+
+### BUG: Service worker state corruption after lmod error
+When any module resolution triggers `TypeError: Cannot read properties of
+undefined (reading 'lmod')`, the service worker's internal state becomes
+permanently corrupted. ALL subsequent requests (even for previously working
+modules like react, react-native) return 500 with the same lmod error.
+Only fix: restart Chrome with a fresh --user-data-dir to get a new SW.
+This makes debugging very painful — one bad import poisons everything.
+Expected: errors should be isolated per-request, not corrupt global state.
+Repro: load the app, trigger a module that causes lmod error, then try
+  fetching any other ?mjs or ?imp URL.
+
+### LIMITATION: file: dep subpath imports ignore physical files
+When package.json has `"pkg": "file:./stubs/pkg"` and the code imports
+`pkg/sub/path`, lif-kernel resolves it via ?imp to:
+  `export * from "/.lif/local/.../stubs/pkg/index.js?mjs"`
+It always re-exports from the main entry, ignoring any physical file at
+stubs/pkg/sub/path.js. The dep's package.json `exports` field is also
+not honored.
+Affected: @arkade-os/sdk/repositories/realm, @arkade-os/sdk/adapters/expo,
+  @arkade-os/boltz-swap/repositories/realm.
+Workaround: put ALL exports (including subpath-specific ones) in the root
+index.js of the stub. The physical subpath files are never used by ?imp.
+
+### LIMITATION: file: dep with bc-bech32 causes 500 on ?imp
+Even after converting bc-bech32 to ESM, the entry
+  `"bc-bech32": "file:./blue_modules/bc-bech32"`
+causes 500 "Cannot read properties of undefined (reading 'match')" when
+anything tries to resolve it via the ?imp endpoint.
+Workaround: don't import bc-bech32 by npm name. bc-ur/dist files now use
+relative paths (../../bc-bech32/dist/index.js) instead. The package.json
+entry could potentially be removed entirely.
+
+## JS Coding Conventions (same as lif-wallet)
+- No spaces around arrow functions: (a, b)=>code
+- No spaces around === and ==
+- Use == for string and simple number comparison
+- No .then() — use await (async IIFE inside useEffect for cleanup)
+- No statements on same line as if ()
+- No space after async: async()=>...
+- catch(e){ — no space before (
+- Section comments: // Section Name (no box-drawing)
+- if/for/while: statement on next line, not same line

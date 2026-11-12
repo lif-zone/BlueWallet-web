@@ -1,3 +1,15 @@
-
-export default {set:async()=>{},get:async()=>null,remove:async()=>{}};
-
+export const ACCESSIBLE = {
+  WHEN_UNLOCKED:'WHEN_UNLOCKED',
+  AFTER_FIRST_UNLOCK:'AFTER_FIRST_UNLOCK',
+  ALWAYS:'ALWAYS',
+  WHEN_PASSCODE_SET_THIS_DEVICE_ONLY:'WHEN_PASSCODE_SET_THIS_DEVICE_ONLY',
+  WHEN_UNLOCKED_THIS_DEVICE_ONLY:'WHEN_UNLOCKED_THIS_DEVICE_ONLY',
+  AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY:'AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY',
+  ALWAYS_THIS_DEVICE_ONLY:'ALWAYS_THIS_DEVICE_ONLY',
+};
+const store = {};
+export default {
+  set: async(k,v)=>{store[k]=v},
+  get: async(k)=>store[k]||null,
+  remove: async(k)=>{delete store[k]},
+};

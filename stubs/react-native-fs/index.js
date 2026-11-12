@@ -13,5 +13,4 @@ const RNFS = {
   moveFile: async()=>{},
 };
 export default RNFS;
-module.exports = RNFS;
 

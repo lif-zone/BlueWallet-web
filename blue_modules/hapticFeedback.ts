@@ -1,8 +1,3 @@
-import DeviceInfo, { PowerState } from 'react-native-device-info';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { isDesktop } from './environment';
-
-// Define a const enum for HapticFeedbackTypes
 export const enum HapticFeedbackTypes {
   ImpactLight = 'impactLight',
   ImpactMedium = 'impactMedium',
@@ -13,31 +8,11 @@ export const enum HapticFeedbackTypes {
   NotificationError = 'notificationError',
 }
 
-const triggerHapticFeedback = (type: HapticFeedbackTypes) => {
-  if (isDesktop) return;
-  DeviceInfo.getPowerState().then((state: Partial<PowerState>) => {
-    if (!state.lowPowerMode) {
-      ReactNativeHapticFeedback.trigger(type, { ignoreAndroidSystemSettings: false, enableVibrateFallback: true });
-    } else {
-      console.log('Haptic feedback not triggered due to low power mode.');
-    }
-  });
-};
+const triggerHapticFeedback = (_type: HapticFeedbackTypes)=>{};
 
-export const triggerSuccessHapticFeedback = () => {
-  triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-};
-
-export const triggerWarningHapticFeedback = () => {
-  triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-};
-
-export const triggerErrorHapticFeedback = () => {
-  triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-};
-
-export const triggerSelectionHapticFeedback = () => {
-  triggerHapticFeedback(HapticFeedbackTypes.Selection);
-};
+export const triggerSuccessHapticFeedback = ()=>{};
+export const triggerWarningHapticFeedback = ()=>{};
+export const triggerErrorHapticFeedback = ()=>{};
+export const triggerSelectionHapticFeedback = ()=>{};
 
 export default triggerHapticFeedback;

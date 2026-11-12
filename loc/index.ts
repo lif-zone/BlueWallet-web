@@ -1,4 +1,4 @@
-import enJson from './en.json';
+import enJson from './en_data.js';
 import {BitcoinUnit} from '../models/bitcoinUnits';
 
 const loc: any = {...enJson};
@@ -39,4 +39,22 @@ loc.transactionTimeToReadable = (time: number): string=>{
 };
 
 export const STORAGE_KEY = 'lang';
+export const saveLanguage = async(_lang: string)=>{};
+export const languageReady = ()=>Promise.resolve();
+export const isRtlLayoutStale = ()=>false;
+export const formatBalance = loc.formatBalance;
+export const formatBalanceWithoutSuffix = loc.formatBalanceWithoutSuffix;
+export const formatBalancePlain = (balance: number, toUnit: string): string=>{
+  if (toUnit==BitcoinUnit.SATS)
+    return String(balance);
+  if (toUnit==BitcoinUnit.BTC)
+    return (balance/1e8).toFixed(8);
+  return String(balance);
+};
+export const transactionTimeToReadable = loc.transactionTimeToReadable;
+export const removeTrailingZeros = (s: string): string=>s.replace(/\.?0+$/, '');
+export const formatStringAddTwoWhiteSpaces = (s: string): string=>'  '+s;
+export const formatTransactionListDate = (ts: number): string=>new Date(ts*1000).toLocaleDateString();
+export type TLanguage = string;
+export const AvailableLanguages: {label: string; value: string}[] = [{label: 'English', value: 'en'}];
 export default loc;

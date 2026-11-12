@@ -16,5 +16,13 @@ export const LinearGradient = c('LinearGradient');
 export const RadialGradient = c('RadialGradient');
 export const ClipPath = c('ClipPath');
 export const Use = c('Use');
+export const Image = c('Image');
+export const Mask = c('Mask');
+export const Pattern = c('Pattern');
+export const Ellipse = c('Ellipse');
+export const TSpan = c('TSpan');
+export const ForeignObject = c('ForeignObject');
+export const Symbol = c('Symbol');
+export const Marker = c('Marker');
 export default Svg;
 

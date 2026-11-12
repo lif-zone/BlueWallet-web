@@ -9,5 +9,4 @@ const BackgroundFetch = {
   finish:(id)=>{},
 };
 export default BackgroundFetch;
-module.exports = BackgroundFetch;
 

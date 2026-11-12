@@ -12,5 +12,4 @@ const DefaultPreference = {
   getName: ()=>'',
 };
 export default DefaultPreference;
-module.exports = DefaultPreference;
 

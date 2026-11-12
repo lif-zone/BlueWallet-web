@@ -1,0 +1,1 @@
+{"name":"@arkade-os/sdk","version":"1.0.0","main":"index.js","exports":{".":"./index.js","./adapters/expo":"./index.js","./repositories/realm":"./index.js"}}

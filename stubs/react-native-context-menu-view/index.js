@@ -1,7 +1,7 @@
 
 import React from 'react';
+import {Pressable} from 'react-native';
 export default function ContextMenuView({children, onPress, previewBackgroundColor, dropdownMenuMode, menuConfig, onPressMenuItem, onPressMenuPreview, isMenuPrimaryAction, style, ...props}){
-    let s = Array.isArray(style) ? Object.assign({}, ...style) : style;
-    return React.createElement('div', {...props, style: s, onClick: onPress}, children);
+    return React.createElement(Pressable, {style, onPress, ...props}, children);
 }
 

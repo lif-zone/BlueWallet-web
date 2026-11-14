@@ -1,7 +1,7 @@
 
 import React from 'react';
+import {View} from 'react-native';
 export default function LottieView(props){
-  let s = Array.isArray(props.style) ? Object.assign({}, ...props.style) : props.style;
-  return React.createElement('div',{style:s});
+  return React.createElement(View, {style: props.style});
 }
 

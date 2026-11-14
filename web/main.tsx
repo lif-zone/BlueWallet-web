@@ -14,6 +14,7 @@ html_elm_frag_append(document.head, `
       Roboto, 'Helvetica Neue', Arial, sans-serif; }
     #root { display: flex; flex-direction: column; height: 100%; }
     #root > div { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    [class*="css-text-"] { overflow: hidden; }
     button { cursor: pointer; }
     input, textarea { font-family: inherit; }
   </style>

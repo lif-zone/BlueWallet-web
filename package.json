@@ -60,6 +60,9 @@
       "react-native-web": {
         "./dist/index.js": {
           "export { default as useWindowDimensions } from './exports/useWindowDimensions';": "export { default as useWindowDimensions } from './exports/useWindowDimensions';\nexport function codegenNativeComponent(name){ return (props)=>null; }\nexport function PlatformColor(){ return undefined; }"
+        },
+        "./dist/exports/BackHandler/index.js": {
+          "console.error('BackHandler is not supported on web and should not be used.');": ""
         }
       },
       "@react-navigation/devtools": {

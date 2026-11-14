@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
   hiddenText: {
     height: 0,
     width: 0,
+    overflow: 'hidden',
   },
 });
 

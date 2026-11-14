@@ -63,6 +63,9 @@
         },
         "./dist/exports/BackHandler/index.js": {
           "console.error('BackHandler is not supported on web and should not be used.');": ""
+        },
+        "./dist/exports/Alert/index.js": {
+          "static alert() {}": "static alert(title, message, buttons){\n    if (!buttons || !buttons.length){\n      window.alert(message||title);\n      return;\n    }\n    if (buttons.length==1){\n      window.alert((title?title+'\\n\\n':'')+(message||''));\n      buttons[0].onPress?.();\n      return;\n    }\n    let msg = (title?title+'\\n\\n':'')+(message||'');\n    if (window.confirm(msg)){\n      let btn = buttons.find(b=>b.style=='default')||buttons.find(b=>b.style!='cancel')||buttons[0];\n      btn.onPress?.();\n    } else {\n      let cb = buttons.find(b=>b.style=='cancel');\n      if (cb) cb.onPress?.();\n    }\n  }"
         }
       },
       "@react-navigation/devtools": {

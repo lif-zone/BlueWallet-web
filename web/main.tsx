@@ -13,6 +13,7 @@ html_elm_frag_append(document.head, `
     body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
       Roboto, 'Helvetica Neue', Arial, sans-serif; }
     #root { display: flex; flex-direction: column; height: 100%; }
+    #root > div { display: flex; flex-direction: column; flex: 1; min-height: 0; }
     button { cursor: pointer; }
     input, textarea { font-family: inherit; }
   </style>

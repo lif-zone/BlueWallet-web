@@ -90,6 +90,20 @@ server so the browser can fetch it when used (e.g. as <img src>).
 Affected: @react-navigation/elements (5 PNG imports), possibly others.
 Workaround: manually patch the importing file to use `const x = ''` instead.
 
+### BUG: peerDep resolution ignores host app's pinned version
+When the SW cache is cleared, react-native-web's peerDep
+  `"react": "^18.0.0 || ^19.0.0"` resolves to the latest matching version
+  from CDN (e.g. react@19.3.1) instead of using the host app's pinned
+  `"react": "19.2.6"`. This creates dual React instances and breaks hooks.
+The parent chain lookup in lpm_import_lookup should walk up to the app's
+  dependencies and use its version, but something in the resolution fails.
+Workaround: add `"overrides": {"react": "19.2.6", "react-dom": "19.2.6"}`
+  to the app's lif config. This forces the correct version for all
+  sub-packages but shouldn't be necessary — peerDeps should inherit from
+  the host app automatically.
+Repro: clear SW cache, reload app → "Invalid hook call" error, stack shows
+  react@19.3.1 in react-native-web but react-dom@19.2.6 from the app.
+
 ### BUG: Service worker state corruption after lmod error
 When any module resolution triggers `TypeError: Cannot read properties of
 undefined (reading 'lmod')`, the service worker's internal state becomes

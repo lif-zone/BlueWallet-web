@@ -371,6 +371,12 @@ export function estimateCurrentBlockheight(): number {
   return 0;
 }
 
+export const calculateBlockTime = function(height: number): number {
+  const baseTs = 1585837504;
+  const baseHeight = 624083;
+  return Math.floor(baseTs + (height - baseHeight) * 9.93 * 60);
+};
+
 export async function forgetCachedTransactions(txids: string[]){}
 
 export async function presentResetToDefaultsAlert(): Promise<boolean> {

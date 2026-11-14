@@ -9,8 +9,10 @@ html_elm_frag_append(document.head, `
   <link rel=icon href='lif-kernel/favicon.ico' />
   <style>
     * { box-sizing: border-box; }
+    html, body { height: 100%; }
     body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
       Roboto, 'Helvetica Neue', Arial, sans-serif; }
+    #root { display: flex; flex-direction: column; height: 100%; }
     button { cursor: pointer; }
     input, textarea { font-family: inherit; }
   </style>
@@ -47,6 +49,7 @@ class ErrorBoundary extends React.Component<{children: any}, {error: any}> {
 }
 
 let _root = document.body.appendChild(document.createElement('div'));
+_root.id = 'root';
 let root = createRoot(_root);
 root.render(<LoadingApp />);
 

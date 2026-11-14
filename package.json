@@ -6,6 +6,10 @@
   "lif": {
     "webapp": "./web/main.tsx",
     "spa": true,
+    "overrides": {
+      "react": "19.2.6",
+      "react-dom": "19.2.6"
+    },
     "web_exports": {
       "./img/*": "./img/*"
     },

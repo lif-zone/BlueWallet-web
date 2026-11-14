@@ -48,6 +48,14 @@
       "@react-navigation/drawer": {
         "./lib/module/views/DrawerToggleButton.js": {
           "import toggleDrawerIcon from './assets/toggle-drawer-icon.png';": "const toggleDrawerIcon = import.meta.resolve('./assets/toggle-drawer-icon.png');"
+        },
+        "./lib/module/views/ScreenFallback.js": {
+          "Screens = require('react-native-screens');": "Screens = await import('react-native-screens');"
+        }
+      },
+      "react-native-web": {
+        "./dist/index.js": {
+          "export { default as useWindowDimensions } from './exports/useWindowDimensions';": "export { default as useWindowDimensions } from './exports/useWindowDimensions';\nexport function codegenNativeComponent(name){ return (props)=>null; }\nexport function PlatformColor(){ return undefined; }"
         }
       },
       "@react-navigation/devtools": {

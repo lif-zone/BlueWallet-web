@@ -6,6 +6,9 @@
   "lif": {
     "webapp": "./web/main.tsx",
     "spa": true,
+    "web_exports": {
+      "./img/*": "./img/*"
+    },
     "alt": [
       ".js",
       ".ts",

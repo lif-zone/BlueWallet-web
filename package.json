@@ -69,6 +69,10 @@
       }
     }
   },
+  "overrides": {
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
+  },
   "scripts": {
     "serve": "node node_modules/lif-kernel/web/serve.js -p 4202"
   },

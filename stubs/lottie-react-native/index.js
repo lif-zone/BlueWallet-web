@@ -1,4 +1,7 @@
 
 import React from 'react';
-export default function LottieView(props){return React.createElement('div',{style:props.style});}
+export default function LottieView(props){
+  let s = Array.isArray(props.style) ? Object.assign({}, ...props.style) : props.style;
+  return React.createElement('div',{style:s});
+}
 

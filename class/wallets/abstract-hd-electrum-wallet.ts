@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off", @typescript-eslint/ban-ts-comment: "off", camelcase: "off"   */
-import BIP47Factory, { BIP47Interface } from '@spsina/bip47';
+import BIP47Factory, { BIP47Interface } from 'bip47';
 import assert from 'assert';
 import BigNumber from 'bignumber.js';
 import BIP32Factory, { BIP32Interface } from 'bip32';

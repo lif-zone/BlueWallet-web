@@ -2,6 +2,7 @@ import React from 'react';
 import {createRoot} from 'react-dom/client';
 import './node_env.js';
 import {html_elm_frag_append} from 'lif-kernel/util';
+declare const $lif: any;
 
 html_elm_frag_append(document.head, `
   <meta name=viewport content='width=device-width, initial-scale=1' />
@@ -19,8 +20,30 @@ function LoadingApp(){
   return <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center',
     height: '100vh', flexDirection: 'column'}}>
     <div style={{fontSize: 24, fontWeight: 'bold', marginBottom: 16}}>BlueWallet Web</div>
-    <div style={{fontSize: 14, opacity: 0.6}}>Loading...</div>
+    <div id='bw-loading-text' style={{fontSize: 14, opacity: 0.6}}>Loading…</div>
   </div>;
+}
+
+class ErrorBoundary extends React.Component<{children: any}, {error: any}> {
+  constructor(props: any){
+    super(props);
+    this.state = {error: null};
+  }
+  static getDerivedStateFromError(error: any){
+    return {error};
+  }
+  componentDidCatch(error: any, info: any){
+    console.error('ErrorBoundary caught:', error, info?.componentStack);
+  }
+  render(){
+    if (this.state.error){
+      return <div style={{padding: 32}}>
+        <div style={{fontSize: 24, color: '#e74c3c'}}>Render Error</div>
+        <pre style={{fontSize: 12, whiteSpace: 'pre-wrap'}}>{this.state.error.message+'\n'+this.state.error.stack}</pre>
+      </div>;
+    }
+    return this.props.children;
+  }
 }
 
 let _root = document.body.appendChild(document.createElement('div'));
@@ -28,10 +51,26 @@ let root = createRoot(_root);
 root.render(<LoadingApp />);
 
 (async()=>{
+  let last: number|null = null;
+  let diff = 0;
+  let iv = setInterval(async()=>{
+    let stats = await $lif.boot.kernel_stats();
+    let all = stats?.fetch?.all;
+    if (all==null || all==last)
+      return;
+    if (last==null)
+      diff = all;
+    last = all;
+    let txt = document.getElementById('bw-loading-text');
+    if (txt)
+      txt.textContent = 'Loading… '+(all-diff);
+  }, 200);
   try {
     let {default: App} = await import('../App.tsx');
-    root.render(<App />);
+    clearInterval(iv);
+    root.render(<ErrorBoundary><App /></ErrorBoundary>);
   } catch(e){
+    clearInterval(iv);
     console.error('App load error:', e);
     root.render(<div style={{padding: 32}}>
       <div style={{fontSize: 24, color: '#e74c3c'}}>Load Error</div>

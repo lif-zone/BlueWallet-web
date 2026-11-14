@@ -34,13 +34,30 @@ loc.formatStringWithArgs = (str: string, ...args: any[]): string=>{
   return result;
 };
 
+loc.formatString = (str: string, ...values: any[]): string=>{
+  if (!str)
+    return '';
+  return String(str).replace(/\{(\w+)\}/g, (match, key)=>{
+    if (!isNaN(key)){
+      let v = values[Number(key)];
+      return v!==undefined ? String(v) : match;
+    }
+    for (let arg of values){
+      if (typeof arg=='object' && arg!==null && key in arg)
+        return String(arg[key]);
+    }
+    let v = values[Number(key)];
+    return v!==undefined ? String(v) : match;
+  });
+};
+
 loc.transactionTimeToReadable = (time: number): string=>{
   return new Date(time*1000).toLocaleString();
 };
 
 export const STORAGE_KEY = 'lang';
 export const saveLanguage = async(_lang: string)=>{};
-export const languageReady = ()=>Promise.resolve();
+export const languageReady = Promise.resolve('en');
 export const isRtlLayoutStale = ()=>false;
 export const formatBalance = loc.formatBalance;
 export const formatBalanceWithoutSuffix = loc.formatBalanceWithoutSuffix;

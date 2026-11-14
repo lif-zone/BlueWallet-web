@@ -1,4 +1,4 @@
-import BIP47Factory from '@spsina/bip47';
+import BIP47Factory from 'bip47';
 
 import { SPFactory } from 'silent-payments';
 

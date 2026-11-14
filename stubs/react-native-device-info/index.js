@@ -19,4 +19,6 @@ const DeviceInfo = { getUniqueId, getDeviceType, isTablet, getVersion, getBundle
   getPowerState: async()=>({batteryLevel:1,batteryState:'full',lowPowerMode:false}),
   getApplicationName, getSystemName, getSystemVersion, hasGmsSync, hasHmsSync,
   getModel, getDeviceId, getBrand, getMacAddress, getApiLevel, getFirstInstallTime };
+export const getBuildNumber = ()=>'1';
+export const getUniqueIdSync = ()=>'web-device';
 export default DeviceInfo;

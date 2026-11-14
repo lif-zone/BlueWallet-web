@@ -3,9 +3,9 @@ import { Appearance } from 'react-native';
 
 export const BlueDefaultTheme = {
   ...DefaultTheme,
-  closeImage: require('../img/close.png'),
+  closeImage: '',
   barStyle: 'dark-content',
-  scanImage: require('../img/scan.png'),
+  scanImage: '',
   colors: {
     ...DefaultTheme.colors,
     borderWidth: 0.5,
@@ -90,8 +90,8 @@ export type Theme = typeof BlueDefaultTheme;
 
 export const BlueDarkTheme: Theme = {
   ...DarkTheme,
-  closeImage: require('../img/close-white.png'),
-  scanImage: require('../img/scan-white.png'),
+  closeImage: '',
+  scanImage: '',
   barStyle: 'light-content',
   colors: {
     ...BlueDefaultTheme.colors,

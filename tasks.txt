@@ -9,16 +9,15 @@ importing .png files which lif-kernel can't serve as JS modules.
 
 ## Open Tasks
 
-### 1. Patch @react-navigation/elements PNG imports [BLOCKED on permission]
-File: node_modules/@react-navigation/elements/lib/module/index.js
-Problem: imports back-icon.png, back-icon-mask.png, clear-icon.png,
-  close-icon.png, search-icon.png as ES module imports. lif-kernel adds ?mjs
-  and serves binary PNG as JS → "Invalid or unexpected token".
-Fix: replace the 5 `import ... from './assets/X.png'` lines with
-  `const backIcon = ''; const backIconMask = ''; ...` etc.
-Backup already at index.js.bak. Patched version at:
-  /tmp/claude-1001/-home-derry-lif-coin/.../scratchpad/elements-index-patched.js
-Need user to run the cp command (auto-mode blocks node_modules writes).
+### 1. Fix JSON imports blocking App.tsx load [BLOCKED on lif-kernel]
+@react-native-vector-icons/entypo (and likely other icon sets) does:
+  `import glyphMap from "../../glyphmaps/Entypo.json"`
+Browser rejects: "Expected a JavaScript-or-Wasm module script but the server
+  responded with a MIME type of application/json".
+Fix: lif-kernel Babel transpiler should add `with {type: 'json'}` to imports
+  ending in .json. This is a lif-kernel change, not a BlueWallet-web patch.
+Same icon packages also do `require('../../fonts/Entypo.ttf')` — font binary
+  import, related to the asset imports feature request.
 
 ### 2. Search for other .png/.jpg image imports in npm deps
 After fixing elements, there may be other npm packages that import image files.
@@ -64,18 +63,31 @@ web entry point.
 
 ## lif-kernel Bugs / Limitations
 
-### BUG: PNG/image imports crash the module system
-When an npm module has `import icon from './icon.png'`, lif-kernel's Babel
-transform rewrites it to `import icon from './icon.png?mjs'`. The service
-worker then fetches the PNG file and serves its binary content as
-Content-Type: application/javascript. The browser JS parser hits the binary
-data and throws "Invalid or unexpected token".
+### FEATURE REQUEST: JSON import attributes
+`import data from './file.json'` without `with {type: 'json'}` is common in
+bundler-built code (Webpack, Metro, etc.) but browsers require the import
+attribute. lif-kernel's Babel transpiler should detect imports where the
+specifier ends in `.json` and add `with {type: 'json'}` automatically.
+Latest Chrome fully supports import attributes (`with {type: 'json'}`).
+This is the standards-forward solution — no wrapping JSON as JS needed.
+Affected: @react-native-vector-icons (all icon sets import glyphmap .json files)
+  e.g. `import glyphMap from "../../glyphmaps/Entypo.json"`
+Workaround: none currently (blocks App.tsx from loading)
+
+### FEATURE REQUEST: Asset imports (Webpack-compatible)
+`import icon from './icon.png'` is not valid ESM but is a widely supported
+bundler convention. Webpack, Vite, Metro, Parcel, esbuild all detect imports
+by file extension and return a JS module exporting the asset's URL.
+lif-kernel should do the same for Webpack compatibility — detect known asset
+extensions and return: `export default "<served URL of the file>"`.
+Webpack has no built-in default list — each project configures its own rules.
+Common convention (from Create React App, Metro, etc.):
+  images:  .png .jpg .jpeg .gif .webp .avif .ico .bmp .svg
+  fonts:   .woff .woff2 .eot .ttf .otf
+lif-kernel should pick a reasonable set of extensions to handle.
+The served URL should point to the actual binary file on the lif-kernel
+server so the browser can fetch it when used (e.g. as <img src>).
 Affected: @react-navigation/elements (5 PNG imports), possibly others.
-Expected: lif-kernel should detect non-JS file extensions (.png, .jpg, .gif,
-.svg, .woff, .ttf) and either:
-  a) return a JS module that exports a data: URI of the file, or
-  b) return a JS module that exports the served URL of the file, or
-  c) skip the ?mjs rewrite for known asset extensions.
 Workaround: manually patch the importing file to use `const x = ''` instead.
 
 ### BUG: Service worker state corruption after lmod error

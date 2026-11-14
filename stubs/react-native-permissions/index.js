@@ -5,4 +5,5 @@ export const request = async()=>RESULTS.UNAVAILABLE;
 export const checkNotifications = async()=>({status:RESULTS.UNAVAILABLE,settings:{}});
 export const requestNotifications = async()=>({status:RESULTS.UNAVAILABLE,settings:{}});
 export const PERMISSIONS = {IOS:{},ANDROID:{}};
+export const openSettings = async()=>{};
 
